@@ -1,86 +1,136 @@
+import { GameAction, GameActionType } from "./game/actions";
+import { rand } from "./util/rand";
 import { Timer } from "./util/timer";
 
-const rand = (i: number) => Math.floor(Math.random() * i);
+enum GameEventType {
+  PromptForTurn = "CHARACTER_TURN",
+  Exec = "EXEC",
+}
 
-type Metadata<T, Payload = {}> = {
+type GameEventMetadata<T extends GameEventType, Payload = {}> = {
   __type: T;
 } & Payload;
 
-// actions 
-
-enum GameActionType {
-  Say = "SAY",
-  Cast = "CAST",
-}
-
-type GameActionMetadata<T, Payload = {}> = Metadata<T, {
-  __actorId: string;
-} & Payload>;
-
-type SayAction = GameActionMetadata<GameActionType.Say, {
-  str: string;
+type PromptForTurnEvent = GameEventMetadata<GameEventType.PromptForTurn, {
+  actorToPromptId: string;
 }>;
 
-type CastAction = GameActionMetadata<GameActionType.Cast, {
-  spellId: string;
+type ExecEvent = GameEventMetadata<GameEventType.Exec, {
+  apply: () => void; // TODO param: Game
 }>;
 
-type GameAction = SayAction | CastAction;
+type GameEvent = PromptForTurnEvent | ExecEvent;
 
-// events
-
-enum GameEventType {
-  PromptForTurn = "PROMPT_FOR_TURN",
-  ApplyDamage = "APPLY_DAMAGE",
-  BroadcastText = "BROADCAST_TEXT",
-  Explode = "KABLAM",
-}
-
-type PromptForTurnEvent = Metadata<GameEventType.PromptForTurn, {
-  actorId: string;
-}>;
-
-type ApplyDamageEvent = Metadata<GameEventType.ApplyDamage, {
-  targetId: string;
-  type: string;
-  amount: number;
-}>;
-
-type BroadcastTextEvent = Metadata<GameEventType.BroadcastText, {
-  str: string;
-}>;
-
-type ExplodeEvent = Metadata<GameEventType.Explode>;
-
-type GameEvent = PromptForTurnEvent | ApplyDamageEvent | BroadcastTextEvent | ExplodeEvent;
-
-// bots
-type Actor = {
+type GameActor = {
   id: string;
   getAction: () => GameAction;
 };
+
+class Game {
+  private characters: Record<string, GameActor>;
+  private eventTimer = new Timer<GameEvent>();
+  private state = {
+    turn: 0,
+  };
+
+  constructor(characters: Record<string, GameActor>) {
+    this.characters = characters;
+    this.init();
+  }
+
+  private init() {
+    // TODO decide real order
+    Object.entries(this.characters).forEach(([actorId]) => {
+      this.eventTimer.insert({ at: 0 }, {
+        __type: GameEventType.PromptForTurn,
+        actorToPromptId: actorId,
+      });
+    });
+  }
+
+  public go() {
+    do {
+      //get next action:
+      const maybeNextEvent = this.eventTimer.next();
+  
+      if (!maybeNextEvent) {
+        console.log('> GAME OVER!');
+        break;
+      }
+  
+      const { item: event } = maybeNextEvent;
+  
+      // do turn (get char action and push event(s))
+      if (event.__type === GameEventType.PromptForTurn) {      
+        const character = this.characters[event.actorToPromptId];
+        this.resolveTurn(character);
+        this.state.turn += 1;
+      }
+
+      // process event
+      if (event.__type === GameEventType.Exec) {
+        event.apply();
+      }
+    } while (this.eventTimer.currentTime.at < 100);
+  } 
+
+  private resolveTurn(actor: GameActor) {
+    const action = actor.getAction();
+    const { __type: type, __actorId: actorId } = action;
+
+    let cooldown = 0;
+
+    // resolve SAY
+    if (type === "SAY") {
+      this.eventTimer.insert({ at: 0 }, {
+        __type: GameEventType.Exec,
+        apply() {
+          console.log(`${actor.id} Sez: ${action.str}`)
+        }
+      });
+  
+      cooldown = action.str.length
+    }
+  
+    // resolve CAST
+    if (type === "CAST") {
+      console.log(`> ${actorId} casts a spell!`)
+
+      this.eventTimer.insert({ at: 3 }, { // <=== action to spell event
+        __type: GameEventType.Exec,
+        apply() {
+          console.log(`${actorId}'s fireball goes blam-o!`)
+        }
+      });
+
+      cooldown = 10 + rand(10);
+    }
+
+    // insert cooldown
+    this.eventTimer.insert({ at: cooldown }, {
+      __type: GameEventType.PromptForTurn,
+      actorToPromptId: actorId,
+    });
+  }
+}
+
+
+
+// DEMO:
 
 const bot1 = {
   id: "BOT1",
   getAction(): GameAction {
     const strs = [
-      "Hello I am bot 1",
-      "Hi",
-      "Yo",
-      "Sup",
-      "Wasshup mah dude",
-      "Ayyo",
-      "Hai this is a bit longer",
-      "Nihao",
+      "Hello I am bot 1 this is a medium sentence",
+      "Hi", "Yo", "Sup", "Hey", "Ayyo", "Hola", "Salut", "Nihao",
       "Im gonna make a very very long speech and then get tired and go away for a while now..."
     ];
-
-    const str = strs[rand(strs.length)];
 
     return {
       __type: GameActionType.Say,
       __actorId: this.id,
-      str
+      str: strs[rand(strs.length)]
     }
   }
 };
@@ -91,105 +141,13 @@ const bot2 = {
     return {
       __type: GameActionType.Cast,
       __actorId: this.id,
-      spellId: "FIREBALLZ!"
+      spellId: "FIREBALL"
     }
   }
 };
 
-// engine
-function doTurn(timer: Timer<GameEvent>, actor: Actor) {
-  const action = actor.getAction();
-
-  const { __type: type } = action;
-
-  // console.log('> processAction', { action });
-
-  if (type === "SAY") {
-    timer.insert({ at: 0 }, {
-      __type: GameEventType.BroadcastText,
-      str: `${actor.id}: ${action.str}`,
-    });
-
-    timer.insert({ at: action.str.length }, {
-      __type: GameEventType.PromptForTurn,
-      actorId: actor.id,
-    });
-  }
-
-  if (type === "CAST") {
-    timer.insert({ at: 3 }, {
-      __type: GameEventType.Explode,
-    });
-
-    timer.insert({ at: 10 + rand(10) }, {
-      __type: GameEventType.PromptForTurn,
-      actorId: actor.id,
-    });
-  }
-}
-
-function executeEvent(event: GameEvent) {
-  const { __type: type } = event;
-
-  if (type === "APPLY_DAMAGE") {
-    console.log(`Applying ${event.amount} dmg to ${event.targetId} !`)
-  }
-
-  if (type === "KABLAM") {
-    console.log(`KABLAAAAAMMM!!!`)
-  }
-
-  if (type === "BROADCAST_TEXT") {
-    console.log(`> ${event.str}`)
-  }
-}
- 
-function game() {
-  const timer = new Timer<GameEvent>();
-
-  const players: Record<string, any> = {
-    "BOT1": bot1,
-    "BOT2": bot2,
-  };
-
-  // init (in whatever order):
-
-  timer.insert({ at: 0 }, {
-    __type: GameEventType.PromptForTurn,
-    actorId: "BOT1",
-  });
-  
-  timer.insert({ at: 0 }, {
-    __type: GameEventType.PromptForTurn,
-    actorId: "BOT2",
-  });
-
-  let turnCounter = 0;
-
-  // Game Loop:
-  while (timer.currentTime.at < 100) {
-    // 1. get next action:
-    const maybeNextEvent = timer.next();
-
-    if (!maybeNextEvent) {
-      console.log('> GAME OVER!');
-      break;
-    }
-
-    const { item: event, time } = maybeNextEvent;
-
-    // 2. do needful
-    if (event.__type === GameEventType.PromptForTurn) {      
-      const player = players[event.actorId];
-
-      console.log(`[TURN ${turnCounter++}, TICK ${time.at}] Player's turn: ${player.id}`);
-
-      doTurn(timer, player);
-    } else {
-      // console.log(`[TICK ${time.at}]`);
-      executeEvent(event);
-    }
-  }
-}
-
-game();
+const game = new Game({
+  "BOT1": bot1,
+  "BOT2": bot2,
+});
+game.go();
