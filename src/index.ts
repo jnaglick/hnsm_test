@@ -3,7 +3,7 @@ import { rand } from "./util/rand";
 import { Timer } from "./util/timer";
 
 enum GameEventType {
-  PromptForTurn = "CHARACTER_TURN",
+  PromptForTurn = "PROMPT_FOR_TURN",
   Exec = "EXEC",
 }
 
@@ -12,11 +12,11 @@ type GameEventMetadata<T extends GameEventType, Payload = {}> = {
 } & Payload;
 
 type PromptForTurnEvent = GameEventMetadata<GameEventType.PromptForTurn, {
-  actorToPromptId: string;
+  actorId: string;
 }>;
 
 type ExecEvent = GameEventMetadata<GameEventType.Exec, {
-  apply: () => void; // TODO param: Game
+  exec: () => void; // TODO param: Game
 }>;
 
 type GameEvent = PromptForTurnEvent | ExecEvent;
@@ -27,23 +27,23 @@ type GameActor = {
 };
 
 class Game {
-  private characters: Record<string, GameActor>;
+  private actors: Record<string, GameActor>;
   private eventTimer = new Timer<GameEvent>();
   private state = {
     turn: 0,
   };
 
-  constructor(characters: Record<string, GameActor>) {
-    this.characters = characters;
+  constructor(actors: Record<string, GameActor>) {
+    this.actors = actors;
     this.init();
   }
 
   private init() {
     // TODO decide real order
-    Object.entries(this.characters).forEach(([actorId]) => {
+    Object.entries(this.actors).forEach(([actorToPromptId]) => {
       this.eventTimer.insert({ at: 0 }, {
         __type: GameEventType.PromptForTurn,
-        actorToPromptId: actorId,
+        actorId: actorToPromptId,
       });
     });
   }
@@ -62,14 +62,14 @@ class Game {
   
       // do turn (get char action and push event(s))
       if (event.__type === GameEventType.PromptForTurn) {      
-        const character = this.characters[event.actorToPromptId];
-        this.resolveTurn(character);
+        const actor = this.actors[event.actorId];
+        this.resolveTurn(actor);
         this.state.turn += 1;
       }
 
       // process event
       if (event.__type === GameEventType.Exec) {
-        event.apply();
+        event.exec();
       }
     } while (this.eventTimer.currentTime.at < 100);
   } 
@@ -80,25 +80,23 @@ class Game {
 
     let cooldown = 0;
 
-    // resolve SAY
-    if (type === "SAY") {
+    if (type === GameActionType.Say) {
       this.eventTimer.insert({ at: 0 }, {
         __type: GameEventType.Exec,
-        apply() {
-          console.log(`${actor.id} Sez: ${action.str}`)
+        exec() {
+          console.log(`${actorId} Sez: ${action.str}`)
         }
       });
   
       cooldown = action.str.length
     }
   
-    // resolve CAST
-    if (type === "CAST") {
+    if (type === GameActionType.Cast) {
       console.log(`> ${actorId} casts a spell!`)
 
       this.eventTimer.insert({ at: 3 }, { // <=== action to spell event
         __type: GameEventType.Exec,
-        apply() {
+        exec() {
           console.log(`${actorId}'s fireball goes blam-o!`)
         }
       });
@@ -106,15 +104,13 @@ class Game {
       cooldown = 10 + rand(10);
     }
 
-    // insert cooldown
+    // insert next turn at cooldown
     this.eventTimer.insert({ at: cooldown }, {
       __type: GameEventType.PromptForTurn,
-      actorToPromptId: actorId,
+      actorId,
     });
   }
 }
-
-
 
 // DEMO:
 
