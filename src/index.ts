@@ -1,5 +1,5 @@
 import { GameAction, GameActionType } from "./game/actions";
-import { rand } from "./util/rand";
+import { rand, percentCheck } from "./util/rand";
 import { StateMachine } from "./util/state";
 import { Timer } from "./util/timer";
 
@@ -66,7 +66,7 @@ class Game {
       if (event.__type === GameEventType.Exec) {
         event.exec();
       }
-    } while (this.eventTimer.currentTime.at < 100);
+    } while (this.eventTimer.currentTime.at < 1000);
   } 
 
   private resolveTurn(actor: GameActor) {
@@ -117,9 +117,10 @@ class Game {
     if (type === GameActionType.Wait) {
       cooldown = action.waitForTicks;
     }
-
+    
     // * * * SELF DESTRUCT
     if (type === GameActionType.SelfDestruct) {
+      // TODO kill? this.actors[action.__actorId] == undefined;
       return;
     }
 
@@ -165,50 +166,65 @@ function candleFactory(identfier: string) {
     initial: "INITIAL",
     links: {
       "INITIAL": {
-        "0": "INITIAL",
-        "1": "LEFT",
-        "2": "RIGHT",
+        "NEXT": "WAIT_OR_FLICKER",
+      },
+      "WAIT_OR_FLICKER": {
+        "LEFT": "LEFT",
+        "RIGHT": "RIGHT",
       },
       "LEFT": {
-        "0": "INITIAL",
-        "1": "INITIAL",
-        "2": "SMOLDER",
+        "BACK": "INITIAL",
+        "SMOLDERING": "SMOLDER1",
       },
       "RIGHT": {
-        "0": "INITIAL",
-        "1": "INITIAL",
-        "2": "SMOLDER",
+        "BACK": "INITIAL",
+        "SMOLDERING": "SMOLDER1",
       },
-      "SMOLDER": {
-        "0": "OFF",
-        "1": "OFF",
-        "2": "OFF",
-      },
+      "SMOLDER1": { "NEXT": "SMOLDER2" },
+      "SMOLDER2": { "NEXT": "SMOLDER3" },
+      "SMOLDER3": { "NEXT": "OFF" },
       "OFF": {}
     }
   })
 
   const strs: Record<string, string> = {
     "INITIAL": `the ${identfier} candle burns`,
+    "WAIT_OR_FLICKER": `the ${identfier} candle starts to shake`,
     "LEFT": `the ${identfier} candle flickers left`,
     "RIGHT": `the ${identfier} candle flickers right`,
-    "SMOLDER": `the ${identfier} candle flickers violently and goes out!`,
+    "SMOLDER1": `the ${identfier} candle flickers violently!`,
+    "SMOLDER2": `the ${identfier} candle dims`,
+    "SMOLDER3": `the ${identfier} candle goes out...`,
   };
 
   return {
     id: `Candle:${identfier}`,
-    machine,
-    strs,
     getAction(): GameAction { 
-      if (this.machine.state === "OFF") {
+      if (machine.state === "OFF") {
         return {
           __type: GameActionType.SelfDestruct,
         __actorId: this.id,
         }
       }      
 
-      const str = this.strs[this.machine.state];
-      machine.next(rand(3).toString());
+      const str = strs[machine.state];
+
+      if (machine.state === "INITIAL") {
+        machine.next("NEXT");
+      } else if (machine.state === "WAIT_OR_FLICKER") {
+        if (percentCheck(90)) {
+          return {
+            __type: GameActionType.Wait,
+           __actorId: this.id,
+            waitForTicks: 5,
+          }
+        }
+        machine.next(percentCheck(50) ? "LEFT" : "RIGHT"); 
+      } else if (machine.state === "LEFT" || machine.state === "RIGHT") {
+        machine.next(percentCheck(90) ? "BACK" : "SMOLDERING");
+      } else {
+        machine.next("NEXT");
+      }
 
       return {
         __type: GameActionType.Broadcast,
