@@ -160,7 +160,7 @@ const bot2 = {
   }
 };
 
-function candleFactory() {
+function candleFactory(identfier: string) {
   const machine = new StateMachine({
     initial: "INITIAL",
     links: {
@@ -188,10 +188,18 @@ function candleFactory() {
     }
   })
 
+  const strs: Record<string, string> = {
+    "INITIAL": `the ${identfier} candle burns`,
+    "LEFT": `the ${identfier} candle flickers left`,
+    "RIGHT": `the ${identfier} candle flickers right`,
+    "SMOLDER": `the ${identfier} candle flickers violently and goes out!`,
+  };
+
   return {
-    id: "Candle",
+    id: `Candle:${identfier}`,
     machine,
-    getAction(): GameAction {
+    strs,
+    getAction(): GameAction { 
       if (this.machine.state === "OFF") {
         return {
           __type: GameActionType.SelfDestruct,
@@ -199,7 +207,7 @@ function candleFactory() {
         }
       }      
 
-      const str = this.machine.state;
+      const str = this.strs[this.machine.state];
       machine.next(rand(3).toString());
 
       return {
@@ -211,11 +219,13 @@ function candleFactory() {
   }
 }
 
-const candle = candleFactory();
+const candle = candleFactory("red");
+const candle2 = candleFactory("yellow");
 
 const game = new Game({
   [bot1.id]: bot1,
   [bot2.id]: bot2,
   [candle.id]: candle,
+  [candle2.id]: candle2,
 });
 game.go();
