@@ -1,5 +1,8 @@
 export enum GameActionType {
   Say = "SAY",
+  Broadcast = "BROADCAST",
+  Wait = "WAIT",
+  SelfDestruct = "SELF_DESTRUCT",
   Attack = "ATT",
   Cast = "CAST",
 }
@@ -13,12 +16,21 @@ export type SayAction = GameActionMetadata<GameActionType.Say, {
   str: string;
 }>;
 
-export type AttackAction = GameActionMetadata<GameActionType.Attack, {
-  targetId: string;
-}>;
-
 export type CastAction = GameActionMetadata<GameActionType.Cast, {
   spellId: string;
 }>;
 
-export type GameAction = SayAction | AttackAction | CastAction;
+// puts something in the logs
+export type BroadcastAction = GameActionMetadata<GameActionType.Broadcast, {
+  str: string;
+}>;
+
+// waits (for objects)
+export type WaitAction = GameActionMetadata<GameActionType.Wait, {
+  waitForTicks: number;
+}>;
+
+// self-destructs (for objects)
+export type SelfDestructAction = GameActionMetadata<GameActionType.SelfDestruct>;
+
+export type GameAction = SayAction | CastAction | BroadcastAction | WaitAction | SelfDestructAction;

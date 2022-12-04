@@ -1,5 +1,6 @@
 import { GameAction, GameActionType } from "./game/actions";
 import { rand } from "./util/rand";
+import { StateMachine } from "./util/state";
 import { Timer } from "./util/timer";
 
 enum GameEventType {
@@ -29,9 +30,6 @@ type GameActor = {
 class Game {
   private actors: Record<string, GameActor>;
   private eventTimer = new Timer<GameEvent>();
-  private state = {
-    turn: 0,
-  };
 
   constructor(actors: Record<string, GameActor>) {
     this.actors = actors;
@@ -40,17 +38,17 @@ class Game {
 
   private init() {
     // TODO decide real order
-    Object.entries(this.actors).forEach(([actorToPromptId]) => {
+    Object.entries(this.actors).forEach(([actorId]) => {
       this.eventTimer.insert({ at: 0 }, {
         __type: GameEventType.PromptForTurn,
-        actorId: actorToPromptId,
+        actorId: actorId, // TODO eslint
       });
     });
   }
 
   public go() {
     do {
-      //get next action:
+      // get next action:
       const maybeNextEvent = this.eventTimer.next();
   
       if (!maybeNextEvent) {
@@ -60,14 +58,11 @@ class Game {
   
       const { item: event } = maybeNextEvent;
   
-      // do turn (get char action and push event(s))
       if (event.__type === GameEventType.PromptForTurn) {      
         const actor = this.actors[event.actorId];
         this.resolveTurn(actor);
-        this.state.turn += 1;
       }
 
-      // process event
       if (event.__type === GameEventType.Exec) {
         event.exec();
       }
@@ -80,28 +75,52 @@ class Game {
 
     let cooldown = 0;
 
+    // * * * SAY
     if (type === GameActionType.Say) {
       this.eventTimer.insert({ at: 0 }, {
         __type: GameEventType.Exec,
         exec() {
-          console.log(`${actorId} Sez: ${action.str}`)
+          console.log(`[${actorId}] ${action.str}`)
         }
       });
   
       cooldown = action.str.length
     }
-  
+
+    // * * * CAST
     if (type === GameActionType.Cast) {
       console.log(`> ${actorId} casts a spell!`)
 
-      this.eventTimer.insert({ at: 3 }, { // <=== action to spell event
+      this.eventTimer.insert({ at: 5 }, { // <=== action to spell event
         __type: GameEventType.Exec,
         exec() {
-          console.log(`${actorId}'s fireball goes blam-o!`)
+          console.log(`> ${actorId}'s fireball goes blam-o!`)
         }
       });
 
       cooldown = 10 + rand(10);
+    }
+
+    // * * * BROADCAST
+    if (type === GameActionType.Broadcast) {
+      this.eventTimer.insertNext({
+        __type: GameEventType.Exec,
+        exec() {
+          console.log(`> ${action.str}`)
+        }
+      });
+  
+      cooldown = 5; // <=== TODO problem!
+    }
+
+    // * * * WAIT
+    if (type === GameActionType.Wait) {
+      cooldown = action.waitForTicks;
+    }
+
+    // * * * SELF DESTRUCT
+    if (type === GameActionType.SelfDestruct) {
+      return;
     }
 
     // insert next turn at cooldown
@@ -116,17 +135,16 @@ class Game {
 
 const bot1 = {
   id: "BOT1",
+  strs: [
+    "Hello I am bot 1 this is a medium sentence",
+    "Hi", "Yo", "Sup", "Hey", "Ayyo", "Hola", "Salut", "Nihao",
+    "Im gonna make a very very long speech and then get tired and go away for a while now..."
+  ],
   getAction(): GameAction {
-    const strs = [
-      "Hello I am bot 1 this is a medium sentence",
-      "Hi", "Yo", "Sup", "Hey", "Ayyo", "Hola", "Salut", "Nihao",
-      "Im gonna make a very very long speech and then get tired and go away for a while now..."
-    ];
-
     return {
       __type: GameActionType.Say,
       __actorId: this.id,
-      str: strs[rand(strs.length)]
+      str: this.strs[rand(this.strs.length)]
     }
   }
 };
@@ -142,8 +160,62 @@ const bot2 = {
   }
 };
 
+function candleFactory() {
+  const machine = new StateMachine({
+    initial: "INITIAL",
+    links: {
+      "INITIAL": {
+        "0": "INITIAL",
+        "1": "LEFT",
+        "2": "RIGHT",
+      },
+      "LEFT": {
+        "0": "INITIAL",
+        "1": "INITIAL",
+        "2": "SMOLDER",
+      },
+      "RIGHT": {
+        "0": "INITIAL",
+        "1": "INITIAL",
+        "2": "SMOLDER",
+      },
+      "SMOLDER": {
+        "0": "OFF",
+        "1": "OFF",
+        "2": "OFF",
+      },
+      "OFF": {}
+    }
+  })
+
+  return {
+    id: "Candle",
+    machine,
+    getAction(): GameAction {
+      if (this.machine.state === "OFF") {
+        return {
+          __type: GameActionType.SelfDestruct,
+        __actorId: this.id,
+        }
+      }      
+
+      const str = this.machine.state;
+      machine.next(rand(3).toString());
+
+      return {
+        __type: GameActionType.Broadcast,
+        __actorId: this.id,
+        str
+      }
+    }
+  }
+}
+
+const candle = candleFactory();
+
 const game = new Game({
-  "BOT1": bot1,
-  "BOT2": bot2,
+  [bot1.id]: bot1,
+  [bot2.id]: bot2,
+  [candle.id]: candle,
 });
 game.go();

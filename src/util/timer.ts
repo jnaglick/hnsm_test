@@ -19,6 +19,15 @@ export class PriorityQueue<I = any> {
     return item; 
   }
 
+  insertNext(item: I): I {
+    this.items = [
+      { time: { at: 0 }, item },
+      ...this.items,
+    ]
+
+    return item; 
+  }
+
   next(): TimedItem<I> | undefined {
     if (this.items.length === 0) {
       return undefined;
