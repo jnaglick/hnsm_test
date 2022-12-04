@@ -1,4 +1,4 @@
-import { GameAction, GameActionType } from "../actions";
+import { EncounterAction, EncounterActionType } from "../actions/typeDefs";
 import { rand } from "../util/rand";
 
 export const bot1 = {
@@ -8,22 +8,10 @@ export const bot1 = {
     "Hi", "Yo", "Sup", "Hey", "Ayyo", "Hola", "Salut", "Nihao",
     "Im gonna make a very very long speech and then get tired and go away for a while now..."
   ],
-  getAction(): GameAction {
+  getAction(): EncounterAction {
     return {
-      __type: GameActionType.Say,
-      __actorId: this.id,
-      str: this.strs[rand(this.strs.length)]
-    }
-  }
-};
-
-export const bot2 = {
-  id: "BOT2",
-  getAction(): GameAction {
-    return {
-      __type: GameActionType.Cast,
-      __actorId: this.id,
-      spellId: "FIREBALL"
+      __type: EncounterActionType.Broadcast,
+      str: `${this.id} says: ${this.strs[rand(this.strs.length)]}`
     }
   }
 };

@@ -1,36 +1,14 @@
-import { GameAction, GameActionType } from "./actions";
-import { rand } from "./util/rand";
+import actions from "./actions";
+import { EncounterActionType } from "./actions/typeDefs";
 import { Timer } from "./util/timer";
 
-enum GameEventType {
-  PromptForTurn = "PROMPT_FOR_TURN",
-  Exec = "EXEC",
-}
-
-type GameEventMetadata<T extends GameEventType, Payload = {}> = {
-  __type: T;
-} & Payload;
-
-type PromptForTurnEvent = GameEventMetadata<GameEventType.PromptForTurn, {
-  actorId: string;
-}>;
-
-type ExecEvent = GameEventMetadata<GameEventType.Exec, {
-  exec: () => void; // TODO param: Game
-}>;
-
-type GameEvent = PromptForTurnEvent | ExecEvent;
-
-type GameActor = {
-  id: string;
-  getAction: () => GameAction;
-};
+import { EncounterActor, EncounterContext, EncounterEvent, EncounterEventType } from "./typeDefs";
 
 export class Encounter {
-  private actors: Record<string, GameActor>;
-  private eventTimer = new Timer<GameEvent>();
+  private actors: Record<string, EncounterActor>;
+  private eventTimer = new Timer<EncounterEvent>();
 
-  constructor(actors: Record<string, GameActor>) {
+  constructor(actors: Record<string, EncounterActor>) {
     this.actors = actors;
     this.init();
   }
@@ -39,7 +17,7 @@ export class Encounter {
     // TODO decide real order
     Object.entries(this.actors).forEach(([actorId]) => {
       this.eventTimer.insert({ at: 0 }, {
-        __type: GameEventType.PromptForTurn,
+        __type: EncounterEventType.PromptForTurn,
         actorId: actorId, // TODO eslint
       });
     });
@@ -47,86 +25,59 @@ export class Encounter {
 
   public go() {
     do {
-      // get next action:
       const maybeNextEvent = this.eventTimer.next();
   
       if (!maybeNextEvent) {
         console.log('> GAME OVER!');
         break;
       }
-  
+
       const { item: event } = maybeNextEvent;
-  
-      if (event.__type === GameEventType.PromptForTurn) {      
+
+      const { __type: eventType } = event;
+
+      const context = {
+        eventTimer: this.eventTimer,
+        actors: this.actors,
+      };
+    
+      if (eventType === EncounterEventType.PromptForTurn) {      
         const actor = this.actors[event.actorId];
-        this.resolveTurn(actor);
+        this.resolveTurn(context, actor);
       }
 
-      if (event.__type === GameEventType.Exec) {
-        event.exec();
+      if (eventType === EncounterEventType.Exec) {
+        event.exec(context);
       }
-    } while (this.eventTimer.currentTime.at < 1000);
+    } while (this.eventTimer.currentTime.at < 100);
   } 
 
-  private resolveTurn(actor: GameActor) {
-    const action = actor.getAction();
-    const { __type: type, __actorId: actorId } = action;
+  private resolveTurn(context: EncounterContext, actor: EncounterActor) {
+    const action = actor.getAction(); // TODO pass (abriged) ctx
 
-    let cooldown = 0;
+    const { __type: actionType } = action;
 
-    // * * * SAY
-    if (type === GameActionType.Say) {
-      this.eventTimer.insert({ at: 0 }, {
-        __type: GameEventType.Exec,
-        exec() {
-          console.log(`[${actorId}] ${action.str}`)
-        }
+    let handlerResult;
+
+    switch(actionType) { // TODO improve this so dont need to add cases for every action...
+      case EncounterActionType.Broadcast:
+        handlerResult = actions.broadcast(context, action);
+        break;
+      case EncounterActionType.Wait:
+        handlerResult = actions.wait(context, action);
+        break;
+      case EncounterActionType.SelfDestruct:
+      default:
+    }
+
+    if (handlerResult) {
+      const { cooldown } = handlerResult;
+
+      // insert next turn at cooldown
+      this.eventTimer.insert({ at: cooldown }, {
+        __type: EncounterEventType.PromptForTurn,
+        actorId: actor.id,
       });
-  
-      cooldown = action.str.length
     }
-
-    // * * * CAST
-    if (type === GameActionType.Cast) {
-      console.log(`> ${actorId} casts a spell!`)
-
-      this.eventTimer.insert({ at: 5 }, { // <=== action to spell event
-        __type: GameEventType.Exec,
-        exec() {
-          console.log(`> ${actorId}'s fireball goes blam-o!`)
-        }
-      });
-
-      cooldown = 10 + rand(10);
-    }
-
-    // * * * BROADCAST
-    if (type === GameActionType.Broadcast) {
-      this.eventTimer.insertNext({
-        __type: GameEventType.Exec,
-        exec() {
-          console.log(`> ${action.str}`)
-        }
-      });
-  
-      cooldown = 5; // <=== TODO problem!
-    }
-
-    // * * * WAIT
-    if (type === GameActionType.Wait) {
-      cooldown = action.waitForTicks;
-    }
-    
-    // * * * SELF DESTRUCT
-    if (type === GameActionType.SelfDestruct) {
-      // TODO kill? this.actors[action.__actorId] == undefined;
-      return;
-    }
-
-    // insert next turn at cooldown
-    this.eventTimer.insert({ at: cooldown }, {
-      __type: GameEventType.PromptForTurn,
-      actorId,
-    });
   }
 }

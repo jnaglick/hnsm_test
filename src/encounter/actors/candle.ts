@@ -1,4 +1,4 @@
-import { GameAction, GameActionType } from "../actions";
+import { EncounterAction, EncounterActionType } from "../actions/typeDefs";
 import { percentCheck } from "../util/rand";
 import { StateMachine } from "../util/state";
 
@@ -40,11 +40,10 @@ export function candleFactory(identfier: string) {
 
   return {
     id: `Candle:${identfier}`,
-    getAction(): GameAction { 
+    getAction(): EncounterAction { 
       if (machine.state === "OFF") {
         return {
-          __type: GameActionType.SelfDestruct,
-        __actorId: this.id,
+          __type: EncounterActionType.SelfDestruct,
         }
       }      
 
@@ -55,8 +54,7 @@ export function candleFactory(identfier: string) {
       } else if (machine.state === "WAIT_OR_FLICKER") {
         if (percentCheck(90)) {
           return {
-            __type: GameActionType.Wait,
-           __actorId: this.id,
+            __type: EncounterActionType.Wait,
             waitForTicks: 5,
           }
         }
@@ -68,8 +66,7 @@ export function candleFactory(identfier: string) {
       }
 
       return {
-        __type: GameActionType.Broadcast,
-        __actorId: this.id,
+        __type: EncounterActionType.Broadcast,
         str
       }
     }
