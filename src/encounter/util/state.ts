@@ -12,7 +12,7 @@ export class StateMachine {
     this.links = links;
   }
 
-  public next(trigger: string): string {
+  public trigger(trigger: string): string {
     const next = this.links[this.state][trigger]
 
     if (next) {

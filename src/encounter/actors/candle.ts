@@ -52,7 +52,7 @@ export function candleFactory(identfier: string) {
       }
 
       if (machine.state === "WAIT") {
-        machine.next("NEXT");
+        machine.trigger("NEXT");
         return {
           __type: EncounterActionType.Wait,
           waitForTicks: 5,
@@ -62,17 +62,17 @@ export function candleFactory(identfier: string) {
       const str = strs[machine.state];
 
       if (machine.state === "INITIAL") {
-        machine.next("NEXT");
+        machine.trigger("NEXT");
       } else if (machine.state === "WAIT_OR_FLICKER") {
         if (percentCheck(70)) {
-          machine.next("WAIT");
+          machine.trigger("WAIT");
         } else {
-          machine.next(percentCheck(50) ? "LEFT" : "RIGHT");
+          machine.trigger(percentCheck(50) ? "LEFT" : "RIGHT");
         }
       } else if (machine.state === "LEFT" || machine.state === "RIGHT") {
-        machine.next(percentCheck(70) ? "NEXT" : "SMOLDERING");
+        machine.trigger(percentCheck(70) ? "NEXT" : "SMOLDERING");
       } else {
-        machine.next("NEXT");
+        machine.trigger("NEXT");
       }
 
       return {
