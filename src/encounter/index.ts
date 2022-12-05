@@ -24,33 +24,45 @@ export class Encounter {
   }
 
   public go() {
-    do {
-      const maybeNextEvent = this.eventTimer.next();
-  
-      if (!maybeNextEvent) {
-        console.log('> GAME OVER!');
+    while (this.eventTimer.currentTime.at < 100) {
+      if (!this.tick()) {
         break;
       }
+    }
 
-      const { item: event } = maybeNextEvent;
+    if (this.eventTimer.peekNext()) {
+      console.log("timer has  events left ~~")
+    }
+  }
 
-      const { __type: eventType } = event;
+  private tick() {
+    const maybeNextEvent = this.eventTimer.next();
+  
+    if (!maybeNextEvent) {
+      console.log('> GAME OVER!');
+      return false;
+    }
 
-      const context = {
-        eventTimer: this.eventTimer,
-        actors: this.actors,
-      };
-    
-      if (eventType === EncounterEventType.PromptForTurn) {      
-        const actor = this.actors[event.actorId];
-        this.resolveTurn(context, actor);
-      }
+    const { item: event } = maybeNextEvent;
 
-      if (eventType === EncounterEventType.Exec) {
-        event.exec(context);
-      }
-    } while (this.eventTimer.currentTime.at < 100);
-  } 
+    const { __type: eventType } = event;
+
+    const context = {
+      eventTimer: this.eventTimer,
+      actors: this.actors,
+    };
+  
+    if (eventType === EncounterEventType.PromptForTurn) {      
+      const actor = this.actors[event.actorId];
+      this.resolveTurn(context, actor);
+    }
+
+    if (eventType === EncounterEventType.Exec) {
+      event.exec(context);
+    }
+
+    return true;
+  }
 
   private resolveTurn(context: EncounterContext, actor: EncounterActor) {
     const action = actor.getAction(); // TODO pass (abriged) ctx
