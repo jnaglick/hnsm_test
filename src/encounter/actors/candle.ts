@@ -10,15 +10,19 @@ export function candleFactory(identfier: string) {
         "NEXT": "WAIT_OR_FLICKER",
       },
       "WAIT_OR_FLICKER": {
+        "WAIT": "WAIT",
         "LEFT": "LEFT",
         "RIGHT": "RIGHT",
       },
+      "WAIT": {
+        "NEXT": "INITIAL",
+      },
       "LEFT": {
-        "BACK": "INITIAL",
+        "NEXT": "INITIAL",
         "SMOLDERING": "SMOLDER1",
       },
       "RIGHT": {
-        "BACK": "INITIAL",
+        "NEXT": "INITIAL",
         "SMOLDERING": "SMOLDER1",
       },
       "SMOLDER1": { "NEXT": "SMOLDER2" },
@@ -30,7 +34,7 @@ export function candleFactory(identfier: string) {
 
   const strs: Record<string, string> = {
     "INITIAL": `the ${identfier} candle burns`,
-    "WAIT_OR_FLICKER": `the ${identfier} candle starts to shake`,
+    "WAIT_OR_FLICKER": `the ${identfier} candle starts to flicker`,
     "LEFT": `the ${identfier} candle flickers left`,
     "RIGHT": `the ${identfier} candle flickers right`,
     "SMOLDER1": `the ${identfier} candle flickers violently!`,
@@ -45,22 +49,28 @@ export function candleFactory(identfier: string) {
         return {
           __type: EncounterActionType.SelfDestruct,
         }
-      }      
+      }
+
+      if (machine.state === "WAIT") {
+        machine.next("NEXT");
+        return {
+          __type: EncounterActionType.Wait,
+          waitForTicks: 5,
+        }
+      }
 
       const str = strs[machine.state];
 
       if (machine.state === "INITIAL") {
         machine.next("NEXT");
       } else if (machine.state === "WAIT_OR_FLICKER") {
-        if (percentCheck(90)) {
-          return {
-            __type: EncounterActionType.Wait,
-            waitForTicks: 5,
-          }
+        if (percentCheck(70)) {
+          machine.next("WAIT");
+        } else {
+          machine.next(percentCheck(50) ? "LEFT" : "RIGHT");
         }
-        machine.next(percentCheck(50) ? "LEFT" : "RIGHT"); 
       } else if (machine.state === "LEFT" || machine.state === "RIGHT") {
-        machine.next(percentCheck(90) ? "BACK" : "SMOLDERING");
+        machine.next(percentCheck(70) ? "NEXT" : "SMOLDERING");
       } else {
         machine.next("NEXT");
       }
