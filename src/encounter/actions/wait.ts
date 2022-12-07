@@ -1,7 +1,6 @@
-import { EncounterContext } from "../typeDefs";
-import { WaitAction } from "./typeDefs";
+import { ActionHandlerParams, WaitAction } from "./typeDefs";
 
-export function wait(_ctx: EncounterContext, action: WaitAction) {
+export function wait({ action }: ActionHandlerParams<WaitAction>) {
   return {
     cooldown: action.waitForTicks
   }

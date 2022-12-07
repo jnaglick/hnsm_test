@@ -1,8 +1,8 @@
-import { EncounterContext, EncounterEventType } from "../typeDefs";
-import { BroadcastAction } from "./typeDefs";
+import { EncounterEventType } from "../typeDefs";
+import { ActionHandlerParams, BroadcastAction } from "./typeDefs";
 
-export function broadcast(ctx: EncounterContext, action: BroadcastAction) {
-  const { eventTimer } = ctx;
+export function broadcast({ context, action }: ActionHandlerParams<BroadcastAction>) {
+  const { eventTimer } = context;
 
   eventTimer.insertNext({
     __type: EncounterEventType.Exec,

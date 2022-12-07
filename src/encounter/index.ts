@@ -73,10 +73,10 @@ export class Encounter {
 
     switch(actionType) { // TODO improve this so dont need to add cases for every action...
       case EncounterActionType.Broadcast:
-        handlerResult = actions.broadcast(context, action); // TODO context, action, actor (def type?)
+        handlerResult = actions.broadcast({ context, actor, action });
         break;
       case EncounterActionType.Wait:
-        handlerResult = actions.wait(context, action); // TODO context, action, actor (def type?)
+        handlerResult = actions.wait({ context, actor, action });
         break;
       case EncounterActionType.SelfDestruct:
       default:
