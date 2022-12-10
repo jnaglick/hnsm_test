@@ -18,13 +18,13 @@ export type BroadcastAction = EncounterActionMeta<EncounterActionType.Broadcast,
   str: string;
 }>;
 
+// self-destructs (for objects)
+export type SelfDestructAction = EncounterActionMeta<EncounterActionType.SelfDestruct>;
+
 // waits (for objects)
 export type WaitAction = EncounterActionMeta<EncounterActionType.Wait, {
   waitForTicks: number;
 }>;
-
-// self-destructs (for objects)
-type SelfDestructAction = EncounterActionMeta<EncounterActionType.SelfDestruct>;
 
 export type EncounterAction = BroadcastAction | SelfDestructAction | WaitAction;
 

@@ -12,3 +12,4 @@ const game = new Encounter({
 });
 
 game.go();
+ 

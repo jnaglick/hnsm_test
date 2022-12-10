@@ -51,7 +51,7 @@ export class Encounter {
       eventTimer: this.eventTimer,
       actors: this.actors,
     };
-  
+
     if (eventType === EncounterEventType.PromptForTurn) {      
       const actor = this.actors[event.actorId];
       this.resolveTurn(context, actor);
@@ -79,6 +79,8 @@ export class Encounter {
         handlerResult = actions.wait({ context, actor, action });
         break;
       case EncounterActionType.SelfDestruct:
+        handlerResult = actions.selfDestruct({ context, actor, action });
+        break;
       default:
     }
 
