@@ -1,5 +1,5 @@
-import { candleFactory } from "./encounter/actors/candle";
 import { bot1 } from "./encounter/actors/dumb";
+import { candleFactory } from "./encounter/actors/candle";
 import { Encounter } from "./encounter";
 
 const candle = candleFactory("red");
@@ -12,4 +12,3 @@ const game = new Encounter({
 });
 
 game.go();
- 

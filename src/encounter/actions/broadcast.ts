@@ -1,17 +1,20 @@
-import { EncounterEventType } from "../typeDefs";
-import { ActionHandlerParams, BroadcastAction } from "./typeDefs";
+import type { ActionHandlerParams, BroadcastAction } from "./typeDefs";
+import { EncounterEventType } from "../events/typeDefs";
 
-export function broadcast({ context, action }: ActionHandlerParams<BroadcastAction>) {
+export function broadcast({
+  context,
+  action,
+}: ActionHandlerParams<BroadcastAction>) {
   const { eventTimer } = context;
 
   eventTimer.insertNext({
     __type: EncounterEventType.Exec,
     exec() {
-      console.log(`> ${action.str}`)
-    }
+      console.log(`> ${action.str}`);
+    },
   });
 
   return {
-    cooldown: 5
-  }
+    cooldown: 5,
+  };
 }

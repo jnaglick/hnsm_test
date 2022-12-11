@@ -7,25 +7,19 @@ interface TimedItem<I> {
   item: I;
 }
 
-export class PriorityQueue<I = any> {
+export class PriorityQueue<I = unknown> {
   protected items: Array<TimedItem<I>> = [];
 
   insert(time: Time, item: I): I {
-    this.items = [
-      ...this.items,
-      { time, item },
-    ]
+    this.items = [...this.items, { time, item }];
 
-    return item; 
+    return item;
   }
 
   insertNext(item: I): I {
-    this.items = [
-      { time: { at: 0 }, item },
-      ...this.items,
-    ]
+    this.items = [{ time: { at: 0 }, item }, ...this.items];
 
-    return item; 
+    return item;
   }
 
   next(): TimedItem<I> | undefined {
@@ -40,7 +34,7 @@ export class PriorityQueue<I = any> {
     }
 
     let indexOfLowest = 0;
-    for (let i = 0; i < this.items.length; i++) {
+    for (let i = 0; i < this.items.length; i += 1) {
       if (this.items[i].time.at < this.items[indexOfLowest].time.at) {
         indexOfLowest = i;
       }
@@ -50,8 +44,8 @@ export class PriorityQueue<I = any> {
 
     this.items = [
       ...this.items.slice(0, indexOfLowest),
-      ...this.items.slice(indexOfLowest+1)
-    ]
+      ...this.items.slice(indexOfLowest + 1),
+    ];
 
     return item;
   }
@@ -74,7 +68,7 @@ export class PriorityQueue<I = any> {
   }
 }
 
-export class Timer<I = any> extends PriorityQueue<I> {
+export class Timer<I = unknown> extends PriorityQueue<I> {
   public currentTime: Time = { at: 0 };
 
   insert(time: Time, item: I): I {
@@ -91,7 +85,7 @@ export class Timer<I = any> extends PriorityQueue<I> {
     // if items.length === 0 && this.options.resetTimerToZeroOnEmpty { this.currentTime = 0 }
 
     this.currentTime = {
-      at:  _next.time.at
+      at: _next.time.at,
     };
 
     return _next;

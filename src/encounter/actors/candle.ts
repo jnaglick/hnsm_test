@@ -1,4 +1,5 @@
-import { EncounterAction, EncounterActionType } from "../actions/typeDefs";
+import type { EncounterAction } from "../actions/typeDefs";
+import { EncounterActionType } from "../actions/typeDefs";
 import { percentCheck } from "../util/rand";
 import { StateMachine } from "../util/state";
 
@@ -6,49 +7,49 @@ export function candleFactory(identfier: string) {
   const machine = new StateMachine({
     initial: "INITIAL",
     links: {
-      "INITIAL": {
-        "NEXT": "WAIT_OR_FLICKER",
+      INITIAL: {
+        NEXT: "WAIT_OR_FLICKER",
       },
-      "WAIT_OR_FLICKER": {
-        "WAIT": "WAIT",
-        "LEFT": "LEFT",
-        "RIGHT": "RIGHT",
+      WAIT_OR_FLICKER: {
+        WAIT: "WAIT",
+        LEFT: "LEFT",
+        RIGHT: "RIGHT",
       },
-      "WAIT": {
-        "NEXT": "INITIAL",
+      WAIT: {
+        NEXT: "INITIAL",
       },
-      "LEFT": {
-        "NEXT": "INITIAL",
-        "SMOLDERING": "SMOLDER1",
+      LEFT: {
+        NEXT: "INITIAL",
+        SMOLDERING: "SMOLDER1",
       },
-      "RIGHT": {
-        "NEXT": "INITIAL",
-        "SMOLDERING": "SMOLDER1",
+      RIGHT: {
+        NEXT: "INITIAL",
+        SMOLDERING: "SMOLDER1",
       },
-      "SMOLDER1": { "NEXT": "SMOLDER2" },
-      "SMOLDER2": { "NEXT": "SMOLDER3" },
-      "SMOLDER3": { "NEXT": "OFF" },
-      "OFF": {}
-    }
-  })
+      SMOLDER1: { NEXT: "SMOLDER2" },
+      SMOLDER2: { NEXT: "SMOLDER3" },
+      SMOLDER3: { NEXT: "OFF" },
+      OFF: {},
+    },
+  });
 
   const strs: Record<string, string> = {
-    "INITIAL": `the ${identfier} candle burns`,
-    "WAIT_OR_FLICKER": `the ${identfier} candle starts to flicker`,
-    "LEFT": `the ${identfier} candle flickers left`,
-    "RIGHT": `the ${identfier} candle flickers right`,
-    "SMOLDER1": `the ${identfier} candle flickers violently!`,
-    "SMOLDER2": `the ${identfier} candle dims`,
-    "SMOLDER3": `the ${identfier} candle goes out...`,
+    INITIAL: `the ${identfier} candle burns`,
+    WAIT_OR_FLICKER: `the ${identfier} candle starts to flicker`,
+    LEFT: `the ${identfier} candle flickers left`,
+    RIGHT: `the ${identfier} candle flickers right`,
+    SMOLDER1: `the ${identfier} candle flickers violently!`,
+    SMOLDER2: `the ${identfier} candle dims`,
+    SMOLDER3: `the ${identfier} candle goes out...`,
   };
 
   return {
     id: `Candle:${identfier}`,
-    getAction(): EncounterAction { 
+    getAction(): EncounterAction {
       if (machine.state === "OFF") {
         return {
           __type: EncounterActionType.SelfDestruct,
-        }
+        };
       }
 
       if (machine.state === "WAIT") {
@@ -56,7 +57,7 @@ export function candleFactory(identfier: string) {
         return {
           __type: EncounterActionType.Wait,
           waitForTicks: 5,
-        }
+        };
       }
 
       const str = strs[machine.state];
@@ -77,8 +78,8 @@ export function candleFactory(identfier: string) {
 
       return {
         __type: EncounterActionType.Broadcast,
-        str
-      }
-    }
-  }
+        str,
+      };
+    },
+  };
 }

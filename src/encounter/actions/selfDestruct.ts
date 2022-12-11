@@ -1,5 +1,3 @@
-import { ActionHandlerParams, SelfDestructAction } from "./typeDefs";
-
-export function selfDestruct(_params: ActionHandlerParams<SelfDestructAction>) {
+export function selfDestruct() {
   return undefined;
 }

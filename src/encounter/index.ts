@@ -1,11 +1,14 @@
 import actions from "./actions";
 import { EncounterActionType } from "./actions/typeDefs";
+import type { EncounterActor } from "./actors/typeDefs";
+import type { EncounterContext } from "./typeDefs";
+import type { EncounterEvent } from "./events/typeDefs";
+import { EncounterEventType } from "./events/typeDefs";
 import { Timer } from "./util/timer";
-
-import { EncounterActor, EncounterContext, EncounterEvent, EncounterEventType } from "./typeDefs";
 
 export class Encounter {
   private actors: Record<string, EncounterActor>;
+
   private eventTimer = new Timer<EncounterEvent>();
 
   constructor(actors: Record<string, EncounterActor>) {
@@ -16,10 +19,13 @@ export class Encounter {
   private init() {
     // TODO decide real order
     Object.entries(this.actors).forEach(([actorId]) => {
-      this.eventTimer.insert({ at: 0 }, {
-        __type: EncounterEventType.PromptForTurn,
-        actorId: actorId, // TODO eslint
-      });
+      this.eventTimer.insert(
+        { at: 0 },
+        {
+          __type: EncounterEventType.PromptForTurn,
+          actorId, // TODO eslint
+        }
+      );
     });
   }
 
@@ -31,15 +37,15 @@ export class Encounter {
     }
 
     if (this.eventTimer.peekNext()) {
-      console.log("timer has  events left ~~")
+      console.log("timer has  events left ~~");
     }
   }
 
   private tick() {
     const maybeNextEvent = this.eventTimer.next();
-  
+
     if (!maybeNextEvent) {
-      console.log('> GAME OVER!');
+      console.log("> GAME OVER!");
       return false;
     }
 
@@ -52,7 +58,7 @@ export class Encounter {
       actors: this.actors,
     };
 
-    if (eventType === EncounterEventType.PromptForTurn) {      
+    if (eventType === EncounterEventType.PromptForTurn) {
       const actor = this.actors[event.actorId];
       this.resolveTurn(context, actor);
     }
@@ -71,7 +77,9 @@ export class Encounter {
 
     let handlerResult;
 
-    switch(actionType) { // TODO improve this so dont need to add cases for every action...
+    switch (
+      actionType // TODO improve this so dont need to add cases for every action...
+    ) {
       case EncounterActionType.Broadcast:
         handlerResult = actions.broadcast({ context, actor, action });
         break;
@@ -79,19 +87,24 @@ export class Encounter {
         handlerResult = actions.wait({ context, actor, action });
         break;
       case EncounterActionType.SelfDestruct:
-        handlerResult = actions.selfDestruct({ context, actor, action });
+        handlerResult = actions.selfDestruct();
         break;
       default:
     }
 
-    if (handlerResult) {
-      const { cooldown } = handlerResult;
+    if (!handlerResult) {
+      return;
+    }
 
-      // insert next turn at cooldown
-      this.eventTimer.insert({ at: cooldown }, {
+    const { cooldown } = handlerResult;
+
+    // insert next turn at cooldown
+    this.eventTimer.insert(
+      { at: cooldown },
+      {
         __type: EncounterEventType.PromptForTurn,
         actorId: actor.id,
-      });
-    }
+      }
+    );
   }
 }

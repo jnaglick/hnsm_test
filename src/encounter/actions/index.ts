@@ -5,5 +5,5 @@ import { wait } from "./wait";
 export default {
   broadcast,
   selfDestruct,
-  wait
+  wait,
 };

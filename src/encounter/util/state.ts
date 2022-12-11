@@ -1,11 +1,12 @@
 type StateMachineConstructorParams = {
   initial: string;
-  links: Record<string, Record<string, string>>
-}
+  links: Record<string, Record<string, string>>;
+};
 
 export class StateMachine {
   public state: string;
-  private links: Record<string, Record<string, string>>
+
+  private links: Record<string, Record<string, string>>;
 
   constructor({ initial, links }: StateMachineConstructorParams) {
     this.state = initial;
@@ -13,7 +14,7 @@ export class StateMachine {
   }
 
   public trigger(trigger: string): string {
-    const next = this.links[this.state][trigger]
+    const next = this.links[this.state][trigger];
 
     if (next) {
       this.state = next;
