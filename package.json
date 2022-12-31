@@ -4,7 +4,8 @@
   "scripts": {
     "start:dev": "ts-node src/",
     "start:dev:watch": "ts-node-dev --clear --respawn src/",
-    "lint": "eslint --fix src"
+    "lint": "eslint --fix src",
+    "types": "tsc --noEmit src/index.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.46.0",
