@@ -1,5 +1,8 @@
-import type { EncounterActor } from "../actors/typeDefs";
-import type { EncounterContext } from "../typeDefs";
+import type {
+  EncounterActor,
+  EncounterContext,
+  HasEncounterMetadata,
+} from "../typeDefs";
 
 export enum EncounterActionType {
   Say = "SAY",
@@ -13,11 +16,11 @@ export enum EncounterActionType {
 type EncounterActionMeta<
   T extends EncounterActionType,
   Payload extends Record<string, unknown> = Record<string, unknown>
-> = {
-  __type: T;
-} & Payload;
+> = HasEncounterMetadata<T, Payload>;
 
-// puts something in the logs
+/*
+ *  Broadcast
+ */
 export type BroadcastAction = EncounterActionMeta<
   EncounterActionType.Broadcast,
   {
@@ -25,11 +28,15 @@ export type BroadcastAction = EncounterActionMeta<
   }
 >;
 
-// self-destructs (for objects)
+/*
+ *  Self-destruct
+ */
 export type SelfDestructAction =
   EncounterActionMeta<EncounterActionType.SelfDestruct>;
 
-// waits (for objects)
+/*
+ *  Wait
+ */
 export type WaitAction = EncounterActionMeta<
   EncounterActionType.Wait,
   {
@@ -39,6 +46,9 @@ export type WaitAction = EncounterActionMeta<
 
 export type EncounterAction = BroadcastAction | SelfDestructAction | WaitAction;
 
+/*
+ *  Other...
+ */
 export type ActionHandlerParams<T> = {
   context: EncounterContext;
   actor: EncounterActor;

@@ -1,10 +1,12 @@
+import type { EncounterActor, EncounterContext } from "./typeDefs";
+
 import actions from "./actions";
 import type { EncounterAction } from "./actions/typeDefs";
 import { EncounterActionType } from "./actions/typeDefs";
-import type { EncounterActor } from "./actors/typeDefs";
-import type { EncounterContext } from "./typeDefs";
+
 import type { EncounterEvent } from "./events/typeDefs";
 import { EncounterEventType } from "./events/typeDefs";
+
 import { Timer } from "./util/timer";
 
 function resolveAction(

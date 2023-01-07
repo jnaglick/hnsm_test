@@ -1,4 +1,4 @@
-import type { EncounterContext } from "../typeDefs";
+import type { EncounterContext, HasEncounterMetadata } from "../typeDefs";
 
 export enum EncounterEventType {
   PromptForTurn = "PROMPT_FOR_TURN",
@@ -8,10 +8,11 @@ export enum EncounterEventType {
 type EncounterEventMeta<
   T extends EncounterEventType,
   Payload extends Record<string, unknown> = Record<string, unknown>
-> = {
-  __type: T;
-} & Payload;
+> = HasEncounterMetadata<T, Payload>;
 
+/*
+ *  Prompt for Turn
+ */
 type PromptForTurnEvent = EncounterEventMeta<
   EncounterEventType.PromptForTurn,
   {
@@ -19,6 +20,9 @@ type PromptForTurnEvent = EncounterEventMeta<
   }
 >;
 
+/*
+ *  Exec
+ */
 type ExecEvent = EncounterEventMeta<
   EncounterEventType.Exec,
   {
