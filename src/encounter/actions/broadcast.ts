@@ -1,9 +1,11 @@
 import type { ActionHandlerParams, BroadcastAction } from "./typeDefs";
 import { EncounterEventType } from "../events/typeDefs";
+import { insertPromptForTurn } from "./helpers/insertPromptForTurn";
 
 export function broadcast({
   context,
   action,
+  actor,
 }: ActionHandlerParams<BroadcastAction>) {
   const { eventTimer } = context;
 
@@ -14,7 +16,5 @@ export function broadcast({
     },
   });
 
-  return {
-    cooldown: 5,
-  };
+  insertPromptForTurn(context, actor, 5);
 }
