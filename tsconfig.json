@@ -29,9 +29,6 @@
     "skipDefaultLibCheck": true,                      
     "skipLibCheck": true
   },
-  "ts-node": {
-    "require": ["tsconfig-paths/register"]
-  },
   "include": ["**/*.ts", "**/*.d.ts"],
   "exclude": ["node_modules","**/*.spec.ts"]
 }

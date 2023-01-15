@@ -4,8 +4,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint --fix src/",
-    "start:dev": "ts-node src/",
-    "start:dev:watch": "ts-node-dev --clear --respawn src/",
+    "start:dev": "ts-node -r tsconfig-paths/register src/",
+    "start:dev:watch": "ts-node-dev -r tsconfig-paths/register --clear --respawn src/",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@ import type {
   EncounterActor,
   EncounterContext,
   HasEncounterMetadata,
-} from "../typeDefs";
+} from "$encounter/typeDefs";
 
 export enum EncounterActionType {
   Say = "SAY",

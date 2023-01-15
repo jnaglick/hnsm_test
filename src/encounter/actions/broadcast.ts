@@ -1,18 +1,18 @@
 import type { ActionHandlerParams, BroadcastAction } from "./typeDefs";
-import { EncounterEventType } from "../events/typeDefs";
+import { insertExecuteNext } from "./helpers/insertExecuteNext";
 import { insertPromptForTurn } from "./helpers/insertPromptForTurn";
 
 export function broadcast({
   context,
-  action,
+  action: { str },
   actor,
 }: ActionHandlerParams<BroadcastAction>) {
-  const { eventTimer } = context;
+  const broadcastString = ["> ", str].join(" ");
 
-  eventTimer.insertNext({
-    __type: EncounterEventType.Exec,
-    exec() {
-      console.log(`> ${action.str}`);
+  insertExecuteNext({
+    context,
+    exec: () => {
+      console.log(broadcastString);
     },
   });
 

@@ -1,5 +1,5 @@
-import type { EncounterActor, EncounterContext } from "../../typeDefs";
-import { EncounterEventType } from "../../events/typeDefs";
+import type { EncounterActor, EncounterContext } from "$encounter/typeDefs";
+import { EncounterEventType } from "$encounter/events/typeDefs";
 
 export function insertPromptForTurn(
   context: EncounterContext,

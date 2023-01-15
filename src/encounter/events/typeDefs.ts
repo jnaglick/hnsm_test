@@ -1,4 +1,7 @@
-import type { EncounterContext, HasEncounterMetadata } from "../typeDefs";
+import type {
+  EncounterContext,
+  HasEncounterMetadata,
+} from "$encounter/typeDefs";
 
 export enum EncounterEventType {
   PromptForTurn = "PROMPT_FOR_TURN",

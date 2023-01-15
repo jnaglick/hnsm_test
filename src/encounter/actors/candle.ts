@@ -1,7 +1,7 @@
-import type { EncounterAction } from "../actions/typeDefs";
-import { EncounterActionType } from "../actions/typeDefs";
-import { percentCheck } from "../util/rand";
-import { StateMachine } from "../util/state";
+import type { EncounterAction } from "$encounter/actions/typeDefs";
+import { EncounterActionType } from "$encounter/actions/typeDefs";
+import { percentCheck } from "$encounter/util/rand";
+import { StateMachine } from "$encounter/util/state";
 
 export function candleFactory(identfier: string) {
   const machine = new StateMachine({
