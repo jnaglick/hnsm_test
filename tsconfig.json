@@ -7,21 +7,30 @@
 
     "typeRoots": ["./node_modules/@types", "./@types"],
 
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "rootDir": ".",
+    "outDir": "./dist",
+
+    "paths": {
+      "$encounter/*": ["encounter/*"]
+    },
 
     "strict": true ,
-    "alwaysStrict": true,                             
-    "noImplicitAny": true ,
-    "strictNullChecks": true ,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "strictFunctionTypes": true,                      
-    "strictPropertyInitialization": true,             
-    "noImplicitThis": true,                           
-    "noImplicitReturns": true,                        
+    // "noUncheckedIndexedAccess": true,
     "skipDefaultLibCheck": true,                      
-    "skipLibCheck": true                                 
+    "skipLibCheck": true
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
   },
   "include": ["**/*.ts", "**/*.d.ts"],
   "exclude": ["node_modules","**/*.spec.ts"]
