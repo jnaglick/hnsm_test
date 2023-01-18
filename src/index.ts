@@ -1,6 +1,20 @@
-import { bot1 } from "./encounter/actors/dumb";
-import { candleFactory } from "./encounter/actors/candle";
-import { Encounter } from "./encounter";
+import { bot1, candleFactory } from "$encounter/actors";
+// import { mech, WeaponCatalog } from "$entity/mech";
+import { Encounter } from "$encounter/index";
+
+/* const alphaMech = mech({
+  name: "alpha",
+  hp_max: 100,
+  weaponDescriptors: [WeaponCatalog.Chaingun],
+});
+
+const betaMech = mech({
+  name: "beta",
+  hp_max: 50,
+  weaponDescriptors: [WeaponCatalog.Chaingun, WeaponCatalog.Chaingun],
+}); */
+
+// mechActor
 
 const candle = candleFactory("red");
 const candle2 = candleFactory("yellow");

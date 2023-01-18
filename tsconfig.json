@@ -12,7 +12,9 @@
     "outDir": "./dist",
 
     "paths": {
-      "$encounter/*": ["encounter/*"]
+      "$encounter/*": ["encounter/*"],
+      "$entity/*": ["entity/*"],
+      "$util/*": ["util/*"]
     },
 
     "strict": true ,

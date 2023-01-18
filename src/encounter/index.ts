@@ -3,7 +3,6 @@ import type { EncounterActor, EncounterContext } from "./typeDefs";
 import actions from "./actions";
 import type { EncounterAction } from "./actions/typeDefs";
 import { EncounterActionType } from "./actions/typeDefs";
-
 import type { EncounterEvent } from "./events/typeDefs";
 import { EncounterEventType } from "./events/typeDefs";
 
@@ -37,6 +36,7 @@ export class Encounter {
   private eventTimer = new Timer<EncounterEvent>();
 
   constructor(actors: Record<string, EncounterActor>) {
+    // TODO take array of mechs and init mech actors and any internal actors
     this.actors = actors;
     this.init();
   }

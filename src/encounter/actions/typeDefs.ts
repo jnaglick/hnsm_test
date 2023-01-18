@@ -5,12 +5,10 @@ import type {
 } from "$encounter/typeDefs";
 
 export enum EncounterActionType {
-  Say = "SAY",
   Broadcast = "BROADCAST",
-  Wait = "WAIT",
   SelfDestruct = "SELF_DESTRUCT",
+  Wait = "WAIT",
   Attack = "ATT",
-  Cast = "CAST",
 }
 
 type EncounterActionMeta<
@@ -44,7 +42,21 @@ export type WaitAction = EncounterActionMeta<
   }
 >;
 
-export type EncounterAction = BroadcastAction | SelfDestructAction | WaitAction;
+/*
+ *  Attack
+ */
+export type AttackAction = EncounterActionMeta<
+  EncounterActionType.Attack,
+  {
+    targetActorId: string;
+  }
+>;
+
+export type EncounterAction =
+  | AttackAction
+  | BroadcastAction
+  | SelfDestructAction
+  | WaitAction;
 
 /*
  *  Other...

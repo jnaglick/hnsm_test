@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "tsc",
+    "check": "npm run typecheck && npm run lint",
     "lint": "eslint --fix src/",
     "start:dev": "ts-node -r tsconfig-paths/register src/",
     "start:dev:watch": "ts-node-dev -r tsconfig-paths/register --clear --respawn src/",
