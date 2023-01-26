@@ -1,7 +1,7 @@
 import type {
   EncounterContext,
   HasEncounterMetadata,
-} from "$encounter/typeDefs";
+} from "$encounter/engine/typeDefs";
 
 import type { EncounterActor } from "$encounter/actors/typeDefs";
 

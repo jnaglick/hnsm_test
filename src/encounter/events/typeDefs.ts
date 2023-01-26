@@ -1,7 +1,7 @@
 import type {
   EncounterContext,
   HasEncounterMetadata,
-} from "$encounter/typeDefs";
+} from "$encounter/engine/typeDefs";
 
 export enum EncounterEventType {
   PromptForTurn = "PROMPT_FOR_TURN",

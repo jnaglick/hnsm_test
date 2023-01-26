@@ -1,6 +1,6 @@
-import type { EncounterActor } from "./actors/typeDefs";
-import type { EncounterEvent } from "./events/typeDefs";
-import type { Timer } from "./util/timer";
+import type { EncounterActor } from "$encounter/actors/typeDefs";
+import type { EncounterEvent } from "$encounter/events/typeDefs";
+import type { Timer } from "$encounter/util/timer";
 
 export type HasEncounterMetadata<
   T,

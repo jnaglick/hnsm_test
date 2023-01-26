@@ -2,7 +2,7 @@ import actions from "$encounter/actions";
 
 import { EncounterActionType } from "$encounter/actions/typeDefs";
 import type { EncounterActor } from "$encounter/actors/typeDefs";
-import type { EncounterContext } from "$encounter/typeDefs";
+import type { EncounterContext } from "$encounter/engine/typeDefs";
 import type { EncounterEvent } from "$encounter/events/typeDefs";
 import { EncounterEventType } from "$encounter/events/typeDefs";
 

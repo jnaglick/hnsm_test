@@ -1,5 +1,5 @@
 import type { EncounterAction } from "$encounter/actions/typeDefs";
-import type { EncounterContext } from "$encounter/typeDefs";
+import type { EncounterContext } from "$encounter/engine/typeDefs";
 
 type GetActionParams = Pick<EncounterContext, "actors">;
 
