@@ -1,4 +1,4 @@
-import actions from "$encounter/actions";
+import actions from "$encounter/actions/index";
 
 import { EncounterActions } from "$encounter/actions/types";
 import type { EncounterActor } from "$encounter/actors/types";
