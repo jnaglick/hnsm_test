@@ -1,4 +1,4 @@
-import { defined } from "$util/defined";
+import { defined } from "helpers/defined";
 
 export type WeaponDescriptor = Readonly<{
   name: string;
