@@ -1,5 +1,5 @@
-import type { EncounterAction } from "$encounter/actions/typeDefs";
-import { EncounterActionType } from "$encounter/actions/typeDefs";
+import type { EncounterAction } from "$encounter/actions/types";
+import { EncounterActions } from "$encounter/actions/types";
  
 
 import type { Mech } from "$entity/mech";
@@ -16,7 +16,7 @@ export function mechActorFactory(mech: Mech) {
 
       // return attack action({target, weapon})
       return {
-        __type: EncounterActionType.Attack,
+        __type: EncounterActions.Attack,
         targetActorId,
         weapon,
       };

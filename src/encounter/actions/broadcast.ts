@@ -1,4 +1,4 @@
-import type { ActionHandlerParams, BroadcastAction } from "./typeDefs";
+import type { ActionHandlerParams, BroadcastAction } from "./types";
 import { insertExecuteNext } from "./helpers/insertExecuteNext";
 import { insertPromptForTurn } from "./helpers/insertPromptForTurn";
 

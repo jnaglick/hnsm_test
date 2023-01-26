@@ -1,10 +1,10 @@
 import actions from "$encounter/actions";
 
-import { EncounterActionType } from "$encounter/actions/typeDefs";
-import type { EncounterActor } from "$encounter/actors/typeDefs";
-import type { EncounterContext } from "$encounter/engine/typeDefs";
-import type { EncounterEvent } from "$encounter/events/typeDefs";
-import { EncounterEventType } from "$encounter/events/typeDefs";
+import { EncounterActions } from "$encounter/actions/types";
+import type { EncounterActor } from "$encounter/actors/types";
+import type { EncounterContext } from "$encounter/engine/types";
+import type { EncounterEvent } from "$encounter/events/types";
+import { EncounterEventType } from "$encounter/events/types";
 
 import { Timer } from "$encounter/util/timer";
 
@@ -18,13 +18,13 @@ function resolveTurn(context: EncounterContext, actor: EncounterActor) {
   // Process Action
   // TODO improve this so dont need to add cases for every action...
   switch (action.__type) {
-    case EncounterActionType.Broadcast:
+    case EncounterActions.Broadcast:
       actions.broadcast({ context, actor, action });
       break;
-    case EncounterActionType.Wait:
+    case EncounterActions.Wait:
       actions.wait({ context, actor, action });
       break;
-    case EncounterActionType.SelfDestruct:
+    case EncounterActions.SelfDestruct:
       actions.selfDestruct();
       break;
     default:

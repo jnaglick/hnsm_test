@@ -1,5 +1,5 @@
-import type { EncounterContext } from "$encounter/engine/typeDefs";
-import { EncounterEventType } from "$encounter/events/typeDefs";
+import type { EncounterContext } from "$encounter/engine/types";
+import { EncounterEventType } from "$encounter/events/types";
 
 type InsertExecuteNextParams = {
   context: EncounterContext;

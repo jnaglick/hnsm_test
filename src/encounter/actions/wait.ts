@@ -1,4 +1,4 @@
-import type { ActionHandlerParams, WaitAction } from "./typeDefs";
+import type { ActionHandlerParams, WaitAction } from "./types";
 import { insertPromptForTurn } from "./helpers/insertPromptForTurn";
 
 export function wait({

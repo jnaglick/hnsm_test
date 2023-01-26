@@ -1,5 +1,5 @@
-import type { EncounterAction } from "$encounter/actions/typeDefs";
-import { EncounterActionType } from "$encounter/actions/typeDefs";
+import type { EncounterAction } from "$encounter/actions/types";
+import { EncounterActions } from "$encounter/actions/types";
 import { percentCheck } from "$encounter/util/rand";
 import { StateMachine } from "$encounter/util/state";
 
@@ -48,14 +48,14 @@ export function candleFactory(identfier: string) {
     getAction(): EncounterAction {
       if (machine.state === "OFF") {
         return {
-          __type: EncounterActionType.SelfDestruct,
+          __type: EncounterActions.SelfDestruct,
         };
       }
 
       if (machine.state === "WAIT") {
         machine.trigger("NEXT");
         return {
-          __type: EncounterActionType.Wait,
+          __type: EncounterActions.Wait,
           waitForTicks: 5,
         };
       }
@@ -77,7 +77,7 @@ export function candleFactory(identfier: string) {
       }
 
       return {
-        __type: EncounterActionType.Broadcast,
+        __type: EncounterActions.Broadcast,
         str,
       };
     },

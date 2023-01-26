@@ -1,5 +1,5 @@
-import type { EncounterAction } from "$encounter/actions/typeDefs";
-import { EncounterActionType } from "$encounter/actions/typeDefs";
+import type { EncounterAction } from "$encounter/actions/types";
+import { EncounterActions } from "$encounter/actions/types";
 import { rand } from "$encounter/util/rand";
 
 export const bot1 = {
@@ -18,7 +18,7 @@ export const bot1 = {
   ],
   getAction(): EncounterAction {
     return {
-      __type: EncounterActionType.Broadcast,
+      __type: EncounterActions.Broadcast,
       str: `${this.id} says: ${this.strs[rand(this.strs.length)]}`,
     };
   },
