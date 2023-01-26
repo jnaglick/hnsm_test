@@ -1,8 +1,11 @@
 import type {
-  EncounterActor,
   EncounterContext,
   HasEncounterMetadata,
 } from "$encounter/typeDefs";
+
+import type { EncounterActor } from "$encounter/actors/typeDefs";
+
+import type { Weapon } from "$entity/mech";
 
 export enum EncounterActionType {
   Broadcast = "BROADCAST",
@@ -49,6 +52,7 @@ export type AttackAction = EncounterActionMeta<
   EncounterActionType.Attack,
   {
     targetActorId: string;
+    weapon: Weapon;
   }
 >;
 

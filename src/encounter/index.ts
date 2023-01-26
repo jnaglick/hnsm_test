@@ -1,22 +1,23 @@
-import type { EncounterActor, EncounterContext } from "./typeDefs";
-
 import actions from "./actions";
-import type { EncounterAction } from "./actions/typeDefs";
+
 import { EncounterActionType } from "./actions/typeDefs";
+import type { EncounterActor } from "./actors/typeDefs";
+import type { EncounterContext } from "./typeDefs";
 import type { EncounterEvent } from "./events/typeDefs";
 import { EncounterEventType } from "./events/typeDefs";
 
 import { Timer } from "./util/timer";
 
-function resolveAction(
-  context: EncounterContext,
-  actor: EncounterActor,
-  action: EncounterAction
-) {
-  const { __type: actionType } = action;
+function resolveTurn(context: EncounterContext, actor: EncounterActor) {
+  // Get Action
+  const action = actor.getAction(context);
 
+  // Log/Store Action
+  // TODO
+
+  // Process Action
   // TODO improve this so dont need to add cases for every action...
-  switch (actionType) {
+  switch (action.__type) {
     case EncounterActionType.Broadcast:
       actions.broadcast({ context, actor, action });
       break;
@@ -74,27 +75,26 @@ export class Encounter {
       return false;
     }
 
-    const event = maybeNextEvent.item;
+    const { item: event } = maybeNextEvent;
 
-    const { __type: eventType } = event;
+    const context = this.context();
 
-    const context = {
-      eventTimer: this.eventTimer,
-      actors: this.actors,
-    };
-
-    if (eventType === EncounterEventType.PromptForTurn) {
+    if (event.__type === EncounterEventType.PromptForTurn) {
       const actor = this.actors[event.actorId];
-
-      const action = actor.getAction(); // TODO pass (abriged) ctx
-
-      resolveAction(context, actor, action);
+      resolveTurn(context, actor);
     }
 
-    if (eventType === EncounterEventType.Exec) {
+    if (event.__type === EncounterEventType.Exec) {
       event.exec(context);
     }
 
     return true;
+  }
+
+  private context(): EncounterContext {
+    return {
+      eventTimer: this.eventTimer,
+      actors: this.actors,
+    };
   }
 }

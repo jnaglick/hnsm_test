@@ -2,7 +2,8 @@ import { bot1, candleFactory } from "$encounter/actors";
 // import { mech, WeaponCatalog } from "$entity/mech";
 import { Encounter } from "$encounter/index";
 
-/* const alphaMech = mech({
+/*
+const alphaMech = mech({
   name: "alpha",
   hp_max: 100,
   weaponDescriptors: [WeaponCatalog.Chaingun],

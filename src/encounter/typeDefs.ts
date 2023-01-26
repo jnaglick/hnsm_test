@@ -1,16 +1,6 @@
-import type { EncounterAction } from "./actions/typeDefs";
+import type { EncounterActor } from "./actors/typeDefs";
 import type { EncounterEvent } from "./events/typeDefs";
 import type { Timer } from "./util/timer";
-
-export type EncounterActor = {
-  id: string;
-  getAction: () => EncounterAction; // TODO pass (abriged) context
-};
-
-export type EncounterContext = {
-  actors: Record<string, EncounterActor>;
-  eventTimer: Timer<EncounterEvent>;
-};
 
 export type HasEncounterMetadata<
   T,
@@ -18,3 +8,8 @@ export type HasEncounterMetadata<
 > = {
   __type: T;
 } & Payload;
+
+export type EncounterContext = {
+  actors: Record<string, EncounterActor>;
+  eventTimer: Timer<EncounterEvent>;
+};

@@ -1,6 +1,6 @@
 import { defined } from "$util/defined";
 
-type WeaponDescriptor = Readonly<{
+export type WeaponDescriptor = Readonly<{
   name: string;
   dmg: number;
   rounds_max: number;
@@ -8,13 +8,13 @@ type WeaponDescriptor = Readonly<{
   heat_inc: number;
 }>;
 
-type Weapon = {
+export type Weapon = {
   descriptor: WeaponDescriptor;
   rounds_cur: number;
   heat_cur: number;
 };
 
-type MechDescriptor = Readonly<{
+export type MechDescriptor = Readonly<{
   name: string;
   hp_max: number;
   weaponDescriptors: Array<WeaponDescriptor>;
