@@ -1,6 +1,6 @@
 import type { EncounterAction } from "$encounter/actions/types";
 import { EncounterActions } from "$encounter/actions/types";
-import { rand } from "$encounter/util/rand";
+import { rand } from "$util/rand";
 
 export const bot1 = {
   id: "BOT1",

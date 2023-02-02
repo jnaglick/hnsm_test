@@ -1,6 +1,6 @@
 import type { EncounterAction } from "$encounter/actions/types";
 import { EncounterActions } from "$encounter/actions/types";
-import { percentCheck } from "$encounter/util/rand";
+import { percentCheck } from "$util/rand";
 import { StateMachine } from "$encounter/util/state";
 
 export function candleFactory(identfier: string) {
