@@ -58,12 +58,13 @@ export class Encounter {
   public go() {
     while (this.eventTimer.currentTime.at < 100) {
       if (!this.tick()) {
+        console.log("GAME OVER!");
         break;
       }
     }
 
     if (this.eventTimer.peekNext()) {
-      console.log("timer has  events left ~~");
+      console.log("(Timer has  events left)");
     }
   }
 
@@ -71,7 +72,6 @@ export class Encounter {
     const maybeNextEvent = this.eventTimer.next();
 
     if (!maybeNextEvent) {
-      console.log("> GAME OVER!");
       return false;
     }
 

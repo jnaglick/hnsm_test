@@ -51,7 +51,7 @@ export type WaitAction = EncounterActionMeta<
 export type AttackAction = EncounterActionMeta<
   EncounterActions.Attack,
   {
-    targetActorId: string;
+    actor: EncounterActor;
     weapon: Weapon;
   }
 >;
